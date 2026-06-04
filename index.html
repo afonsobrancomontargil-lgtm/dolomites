@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Italia Junho 2026 — Dolomitas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Georgia', serif; background: #f5f2ed; color: #2c2c2c; line-height: 1.7; }
+
+    header { background: #1a2b3c; color: #fff; padding: 60px 40px; text-align: center; }
+    header h1 { font-size: 2.4rem; letter-spacing: 0.04em; margin-bottom: 10px; }
+    header p { font-size: 1rem; color: #a8bfd0; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .stats { display: flex; justify-content: center; gap: 40px; background: #233447; padding: 20px 40px; flex-wrap: wrap; }
+    .stat { text-align: center; color: #fff; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; color: #7dc4e4; }
+    .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #a8bfd0; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+    .day { margin-bottom: 50px; border-left: 4px solid #1a2b3c; padding-left: 24px; }
+    .day.transit { border-left-color: #7dc4e4; }
+    .day.dolomites { border-left-color: #c0392b; }
+    .day.return { border-left-color: #4a9070; }
+
+    .day-image { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 16px; display: block; }
+
+    .day-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .day-number { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.12em; color: #fff; background: #1a2b3c; padding: 3px 10px; border-radius: 2px; white-space: nowrap; }
+    .day.transit .day-number { background: #2980b9; }
+    .day.dolomites .day-number { background: #c0392b; }
+    .day.return .day-number { background: #4a9070; }
+
+    .tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 2px; }
+    .tag.viagem { background: #d6eaf8; color: #1a5276; }
+    .tag.dolomites { background: #fadbd8; color: #922b21; }
+    .tag.return { background: #d5f5e3; color: #1e8449; }
+
+    .day-date { font-size: 1rem; color: #666; font-style: italic; }
+    .day-title { font-size: 1.4rem; font-weight: bold; color: #1a2b3c; margin-bottom: 10px; }
+    .day-description { font-size: 1rem; color: #444; margin-bottom: 16px; max-width: 720px; }
+
+    .events { display: flex; flex-direction: column; gap: 8px; }
+    .event { display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; align-items: start; background: #fff; border-radius: 4px; padding: 10px 14px; font-size: 0.9rem; }
+    .event.camping { border-left: 4px solid #2e7d32; background: #f1f8f1; }
+    .event.stop { border-left: 4px solid #2980b9; background: #eaf2fb; }
+    .event.warning { border-left: 4px solid #e67e22; background: #fef9e7; }
+    .event.nocturno { border-left: 4px solid #6c3483; background: #f5eef8; }
+
+    .event-time { color: #888; font-style: italic; padding-top: 1px; }
+    .event-desc { color: #2c2c2c; }
+    .event-desc .note { display: block; font-size: 0.8rem; color: #c0392b; margin-top: 3px; }
+    .event-desc .note.ok { color: #27ae60; }
+    .event-price { color: #555; font-size: 0.85rem; white-space: nowrap; text-align: right; }
+
+    a { color: #1a2b3c; text-decoration: none; border-bottom: 1px solid #7dc4e4; }
+    a:hover { color: #2980b9; border-bottom-color: #2980b9; }
+    .event.camping a { color: #2e7d32; border-bottom-color: #81c784; }
+    .event.camping a:hover { color: #1b5e20; }
+
+    .section-title { font-size: 1.1rem; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: #1a2b3c; margin: 50px 0 20px; border-bottom: 2px solid #1a2b3c; padding-bottom: 8px; }
+
+    .costs { background: #fff; border-radius: 4px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .cost-row { display: flex; justify-content: space-between; font-size: 0.95rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    .cost-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.05rem; color: #1a2b3c; padding-top: 8px; }
+
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .link-row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 4px; padding: 12px 16px; font-size: 0.9rem; gap: 16px; }
+    .link-row span { color: #666; white-space: nowrap; }
+    .link-row a { color: #1a2b3c; font-weight: bold; border-bottom: 1px solid #7dc4e4; }
+
+    footer { text-align: center; padding: 30px; color: #aaa; font-size: 0.8rem; border-top: 1px solid #ddd; margin-top: 60px; }
+
+    .day-map { height: 180px; border-radius: 4px; margin-top: 16px; border: 1px solid #ddd; }
+    #overview-map { height: 460px; border-radius: 4px; border: 1px solid #ddd; }
+    .map-legend { font-size: 0.78rem; color: #888; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Italia Junho 2026</h1>
+  <p>Milão &rarr; Como &rarr; Garda &rarr; Dolomitas &rarr; Como &rarr; Milão</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">8 dias</div><div class="stat-label">12–19 Junho</div></div>
+  <div class="stat"><div class="stat-value">~700 km</div><div class="stat-label">Percurso total</div></div>
+  <div class="stat"><div class="stat-value">7 noites</div><div class="stat-label">5 Dolomitas · 1 Garda · 1 Milão</div></div>
+  <div class="stat"><div class="stat-value">~€246</div><div class="stat-label">Por pessoa (exc. refeições)</div></div>
+</div>
+
+<main>
+
+  <!-- DIA 1 -->
+  <div class="day transit">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Foto_del_Lago_di_Como_dalla_cresta_della_montagna.jpg" alt="Lago di Como" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 1</span>
+      <span class="day-date">12 Jun, Sexta-feira</span>
+      <span class="tag viagem">Viagem</span>
+    </div>
+    <div class="day-title">Levantamento → Como → Garda</div>
+    <div class="day-description">Levantamento da carrinha às 14h em Milão. Paragem de ~1h em Bellagio ou Menaggio para ver o Lago di Como. Continuar para Riva del Garda (~2h) e check-in no Camping Brione ao final do dia.</div>
+    <div class="events">
+      <div class="event warning">
+        <span class="event-time">14:00</span>
+        <span class="event-desc"><strong>Levantamento da carrinha em <a href="https://www.google.com/maps/search/?api=1&query=Milan,Italy" target="_blank">Milão</a></strong><span class="note">Hora fixa — organizar tudo antes das 14h</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~14:30</span>
+        <span class="event-desc"><strong>Lidl — compras para a viagem</strong> (pão, frios, fruta, bebidas, snacks)<span class="note">Fazer compras grandes agora — única vez que têm a carrinha em contexto urbano</span></span>
+        <span class="event-price">~€30–40 (total)</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~15:30</span>
+        <span class="event-desc"><strong>Paragem <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Como,Italy" target="_blank">Lago di Como</a></strong> — passeio em <a href="https://www.google.com/maps/search/?api=1&query=Bellagio,Como,Italy" target="_blank">Bellagio</a> ou <a href="https://www.google.com/maps/search/?api=1&query=Menaggio,Como,Italy" target="_blank">Menaggio</a><span class="note">~1h — não se dorme aqui</span></span>
+        <span class="event-price">50 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~16:30</span>
+        <span class="event-desc">Como → <a href="https://www.google.com/maps/search/?api=1&query=Riva+del+Garda,Italy" target="_blank">Riva del Garda</a> via A4<span class="note">Portagens ~€12</span></span>
+        <span class="event-price">150 km</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">~18:30</span>
+        <span class="event-desc"><a href="https://www.campingbrione.com/en/" target="_blank"><strong>Camping Brione Riva del Garda</strong></a> — Via Brione 32. Oficial 4★, piscina + electricidade<span class="note">Reserva obrigatória — sem risco de multa</span></span>
+        <span class="event-price">~€35/noite</span>
+      </div>
+    </div>
+    <div id="map-day1" class="day-map"></div>
+  </div>
+
+  <!-- DIA 2 -->
+  <div class="day transit">
+    <div class="day-header">
+      <span class="day-number">Dia 2</span>
+      <span class="day-date">13 Jun, Sábado</span>
+      <span class="tag viagem">Viagem</span>
+    </div>
+    <div class="day-title">Lago di Garda → Monte Baldo → Dolomitas</div>
+    <div class="day-description">Manhã no Lago di Garda com teleférico Monte Baldo em Malcesine — primeiras vistas das Dolomitas ao longe. Partir a meio do dia para Val Gardena (~2h). Paragem em Bolzano. Chegada e exploração da aldeia ao final do dia.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc"><a href="https://www.funiviedelbaldo.it/en/funivia-malcesine-monte-baldo-tickets-online" target="_blank">Teleférico Monte Baldo</a>, <a href="https://www.google.com/maps/search/?api=1&query=Funivia+Malcesine+Monte+Baldo" target="_blank">Malcesine</a><span class="note">~€25 online — reserva recomendada</span></span>
+        <span class="event-price">~€25 | 35 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~13:00</span>
+        <span class="event-desc">Partida Riva del Garda → <a href="https://www.google.com/maps/search/?api=1&query=Bolzano,Italy" target="_blank">Bolzano</a> via A22</span>
+        <span class="event-price">90 km</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~14:00</span>
+        <span class="event-desc"><strong>Paragem <a href="https://www.google.com/maps/search/?api=1&query=Bolzano,Italy" target="_blank">Bolzano</a></strong> — <a href="https://www.google.com/maps/search/?api=1&query=Piazza+Walther+Bolzano" target="_blank">Piazza Walther</a>, centro histórico. Almoço com speck e vinho local.<span class="note">~1h30 — opção: <a href="https://www.iceman.it/en/" target="_blank">Museu Ötzi</a></span></span>
+        <span class="event-price">~€18</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~15:30</span>
+        <span class="event-desc">Bolzano → <a href="https://www.google.com/maps/search/?api=1&query=Selva+di+Val+Gardena,Italy" target="_blank">Val Gardena</a></span>
+        <span class="event-price">40 km</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">~16:15</span>
+        <span class="event-desc"><a href="https://park4night.com/en/place/515921" target="_blank"><strong>Área di Sosta Val Gardena</strong></a> — <a href="https://www.google.com/maps/search/?api=1&query=Strada+Ruacia+28+Selva+di+Val+Gardena" target="_blank">Strada Ruacia 28</a>, junto ao teleférico Sasslong<span class="note">Área vedada e gerida — sem risco de multa</span></span>
+        <span class="event-price">~€20/noite</span>
+      </div>
+    </div>
+    <div id="map-day2" class="day-map"></div>
+  </div>
+
+  <!-- DIA 3 -->
+  <div class="day dolomites">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Val_Gardena_with_Sella_and_Saslonch_from_Resciesa.JPG" alt="Val Gardena" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 3</span>
+      <span class="day-date">14 Jun, Domingo</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Val Gardena — Seceda</div>
+    <div class="day-description">Primeiro dia completo nas Dolomitas. Explorar Selva di Val Gardena de manhã. À tarde, teleférico Seceda para a panorâmica sobre as Dolomitas e o Sassolungo — uma das vistas mais icónicas de toda a cordilheira.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc">Explorar <a href="https://www.google.com/maps/search/?api=1&query=Selva+di+Val+Gardena,Italy" target="_blank">Selva di Val Gardena</a> + provisões</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event warning">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc"><a href="https://www.seceda.it/en/tickets" target="_blank">Teleférico Seceda</a> — panorâmica sobre as Dolomitas<span class="note">Slots de 30 min — reserva online obrigatória. €74 RT + €5 ridgeline</span></span>
+        <span class="event-price">~€79</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><strong>Área di Sosta Ortisei</strong> — junto ao <a href="https://www.google.com/maps/search/?api=1&query=Parcheggio+Ronce+Ortisei" target="_blank">Parcheggio Ronce</a>, base do teleférico Seceda. Aldeia diferente, ambiente mais animado.<span class="note ok">First come first served — chegar antes das 18h</span></span>
+        <span class="event-price">~€18–22/noite</span>
+      </div>
+    </div>
+    <div id="map-day3" class="day-map"></div>
+  </div>
+
+  <!-- DIA 4 -->
+  <div class="day dolomites">
+    <div class="day-header">
+      <span class="day-number">Dia 4</span>
+      <span class="day-date">15 Jun, Segunda-feira</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Sella Ronda → Corvara</div>
+    <div class="day-description">Circuito panorâmico pelos passes — Passo Sella (2244m), Passo Pordoi (2239m), Passo Campolongo (1875m). Almoço de sandes no Passo Pordoi com vistas a 360°. Em vez de regressar a Val Gardena, terminar o dia em Corvara / Alta Badia — aldeia nova, vista diferente para o Grupo Sella.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc"><a href="https://www.valgardena.it/en/summer/sella-ronda/" target="_blank">Sella Ronda</a> — Ortisei → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Sella,Italy" target="_blank">Passo Sella</a> → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Pordoi,Italy" target="_blank">Passo Pordoi</a> → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Campolongo,Italy" target="_blank">Passo Campolongo</a><span class="note">Almoço de sandes no Passo Pordoi (vistas 360°)</span></span>
+        <span class="event-price">50 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc">Chegada a <a href="https://www.google.com/maps/search/?api=1&query=Corvara+Alta+Badia,Italy" target="_blank">Corvara / Alta Badia</a> — tarde livre, explorar a aldeia</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><strong>Área di Sosta Corvara / Alta Badia</strong> — nova aldeia, nova vista para o Gruppo del Sella<span class="note">Aproveitar o scarico da área sosta — esvaziar águas cinzentas (3ª noite de uso)</span></span>
+        <span class="event-price">~€18–22/noite</span>
+      </div>
+    </div>
+    <div id="map-day4" class="day-map"></div>
+  </div>
+
+  <!-- DIA 5 -->
+  <div class="day dolomites">
+    <div class="day-header">
+      <span class="day-number">Dia 5</span>
+      <span class="day-date">16 Jun, Terça-feira</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Lago di Braies → Misurina</div>
+    <div class="day-description">Saída cedo para o Lago di Braies (antes das 10h para evitar multidões). Passear à beira do lago esmeralda, barco opcional. Continuar para o Lago di Misurina ao início da tarde — instalar a van. Tarde tranquila junto ao lago, preparação para a caminhada nocturna de amanhã.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">~08:30</span>
+        <span class="event-desc">Partida <a href="https://www.google.com/maps/search/?api=1&query=Corvara+Alta+Badia,Italy" target="_blank">Corvara</a> → <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Braies+Pragser+Wildsee" target="_blank">Lago di Braies</a> via Val Badia<span class="note">Corvara está mais perto de Braies (~55 km). Chegar antes das 10h</span></span>
+        <span class="event-price">55 km</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~09:30</span>
+        <span class="event-desc"><strong><a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Braies+Pragser+Wildsee" target="_blank">Lago di Braies</a></strong> — passear à beira-lago, barco opcional<span class="note ok">Sem reserva antes de 1 Jul — estacionamento P2 (€7, 800m) ou P3 (€12, 400m)</span></span>
+        <span class="event-price">Livre (antes 1 Jul)</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~12:00</span>
+        <span class="event-desc">Lago di Braies → <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Misurina,Italy" target="_blank">Misurina</a> via Val Pusteria + SS48</span>
+        <span class="event-price">65 km</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">~13:30</span>
+        <span class="event-desc"><a href="https://park4night.com/en/place/14500" target="_blank"><strong>Area Sosta Camper Misurina</strong></a> — área municipal junto ao lago<span class="note">First come first served — chegar antes das 17h</span></span>
+        <span class="event-price">~€20/noite</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc">Passeio à beira do Lago di Misurina — descanso<span class="note">Preparar kit caminhada: lanterna frontal, camadas quentes, comida e água para a noite</span></span>
+        <span class="event-price">—</span>
+      </div>
+    </div>
+    <div id="map-day5" class="day-map"></div>
+  </div>
+
+  <!-- DIA 6 -->
+  <div class="day dolomites">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Drei_Zinnen_Tre_Cime_di_Lavaredo_Dolomites.jpg" alt="Tre Cime di Lavaredo" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 6</span>
+      <span class="day-date">17 Jun, Quarta-feira</span>
+      <span class="tag dolomites">Dolomitas — noite</span>
+    </div>
+    <div class="day-title">Descanso → Tre Cime di Lavaredo (18h–06h)</div>
+    <div class="day-description">Manhã tranquila em Misurina. Às 17h30, condução de 8 km até ao Rifugio Auronzo — chegada às ~18h. Circular das Tre Cime (~9 km, 3–4h) ao pôr-do-sol e à noite. Viewpoint Cadini di Misurina. Pernoitar na van junto às três torres. Nascer do sol às 05h30.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc">Descanso em Misurina — comer bem, dormir se possível<span class="note">Preparação física para a noite longa</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event warning">
+        <span class="event-time">~15:00</span>
+        <span class="event-desc"><strong>Esvaziar águas cinzentas + reabastecer água fresca</strong> na Area Sosta Misurina<span class="note">Obrigatório antes de subir — Rifugio Auronzo não tem scarico nem carico. Já são 5 noites de uso.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~16:00</span>
+        <span class="event-desc">Preparar mochila — lanterna frontal, camadas quentes (5–10°C à noite), comida e água</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event warning">
+        <span class="event-time">~17:30</span>
+        <span class="event-desc"><strong>Condução Misurina → <a href="https://www.google.com/maps/search/?api=1&query=Rifugio+Auronzo+Tre+Cime+di+Lavaredo" target="_blank">Rifugio Auronzo</a></strong> — chegada ~18h<span class="note">Estrada abre ao privado após as 17h. 2 slots overnight €80 total — <a href="https://auronzo.info/en/parking-tre-cime-di-lavaredo/" target="_blank">reserva obrigatória em auronzo.info</a></span></span>
+        <span class="event-price">€80 total van | 8 km</span>
+      </div>
+      <div class="event nocturno">
+        <span class="event-time">~18:00</span>
+        <span class="event-desc"><strong>Circular <a href="https://www.google.com/maps/search/?api=1&query=Tre+Cime+di+Lavaredo,Italy" target="_blank">Tre Cime di Lavaredo</a></strong> (~9 km, 3–4h) — ao pôr-do-sol<span class="note">Trilho sinalizado — transitável de noite com lanterna</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event nocturno">
+        <span class="event-time">~22:00</span>
+        <span class="event-desc"><strong>Viewpoint <a href="https://www.google.com/maps/search/?api=1&query=Cadini+di+Misurina" target="_blank">Cadini di Misurina</a></strong> desde Rifugio Auronzo (3,5 km, ~2h, Moderado)<span class="note">Vista panorâmica nocturna / preparar para o amanhecer</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><strong>Pernoita na van</strong> — <a href="https://www.google.com/maps/search/?api=1&query=Rifugio+Auronzo+Tre+Cime+di+Lavaredo" target="_blank">Parking Rifugio Auronzo</a></span>
+        <span class="event-price">Incluído (€80)</span>
+      </div>
+      <div class="event nocturno">
+        <span class="event-time">~05:30</span>
+        <span class="event-desc"><strong>Nascer do sol nas Tre Cime</strong> — um dos amanheceres mais espectaculares das Dolomitas</span>
+        <span class="event-price">—</span>
+      </div>
+    </div>
+    <div id="map-day6" class="day-map"></div>
+  </div>
+
+  <!-- DIA 7 -->
+  <div class="day return">
+    <div class="day-header">
+      <span class="day-number">Dia 7</span>
+      <span class="day-date">18 Jun, Quinta-feira</span>
+      <span class="tag return">Regresso</span>
+    </div>
+    <div class="day-title">Tre Cime → Lago di Como</div>
+    <div class="day-description">Saída ao amanhecer após o nascer do sol (~06h). Descida para Misurina e viagem para o Lago di Como — ~330 km (~4h) via Cortina → A27 → A4 → A9. Última noite com vista para o lago em Menaggio ou Varenna.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">~06:00</span>
+        <span class="event-desc">Saída Rifugio Auronzo → Misurina → início da viagem para Como</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~06:30</span>
+        <span class="event-desc">Misurina → <a href="https://www.google.com/maps/search/?api=1&query=Menaggio+Lago+di+Como" target="_blank">Lago di Como</a> via Cortina → A27 → A4 → A9<span class="note">~330 km, ~4h de condução. Portagens ~€15</span></span>
+        <span class="event-price">330 km</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~10:30</span>
+        <span class="event-desc">Chegada ao Lago di Como — tarde livre em <a href="https://www.google.com/maps/search/?api=1&query=Menaggio,Como,Italy" target="_blank">Menaggio</a> ou <a href="https://www.google.com/maps/search/?api=1&query=Varenna,Como,Italy" target="_blank">Varenna</a></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><a href="https://www.campingmenaggio.com" target="_blank"><strong>Camping Menaggio</strong></a> — <a href="https://www.google.com/maps/search/?api=1&query=Camping+Menaggio+Via+Lusardi+8" target="_blank">Via Lusardi 8, Menaggio</a>. Vista directa para o lago<span class="note">First come first served ou reserva online</span></span>
+        <span class="event-price">~€28/noite</span>
+      </div>
+    </div>
+    <div id="map-day7" class="day-map"></div>
+  </div>
+
+  <!-- DIA 8 -->
+  <div class="day transit">
+    <div class="day-header">
+      <span class="day-number">Dia 8</span>
+      <span class="day-date">19 Jun, Sexta-feira</span>
+      <span class="tag viagem">Entrega</span>
+    </div>
+    <div class="day-title">Como → Entrega da Carrinha — antes das 11:00</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">~09:30</span>
+        <span class="event-desc">Partida <a href="https://www.google.com/maps/search/?api=1&query=Menaggio,Como,Italy" target="_blank">Menaggio</a> → <a href="https://www.google.com/maps/search/?api=1&query=Milan,Italy" target="_blank">Milão</a> via A9<span class="note">~50 km, ~45 min. Portagem ~€5</span></span>
+        <span class="event-price">50 km</span>
+      </div>
+      <div class="event warning">
+        <span class="event-time">~10:15</span>
+        <span class="event-desc"><strong>Entrega da carrinha em <a href="https://www.google.com/maps/search/?api=1&query=Milan,Italy" target="_blank">Milão</a> — antes das 11:00</strong><span class="note">Prazo fixo — levantamento foi às 14h do dia 12</span></span>
+        <span class="event-price">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA GERAL -->
+  <div class="section-title">Mapa da Viagem — Percurso Completo</div>
+  <div id="overview-map"></div>
+  <p class="map-legend">Clica em cada marcador para detalhes. Linha tracejada = percurso de carro aproximado.</p>
+
+  <!-- CUSTOS -->
+  <div class="section-title">Resumo de Custos</div>
+  <div class="costs">
+    <div class="cost-row"><span>Campings / Áreas di Sosta (7 noites)</span><span>~€72 pp</span></div>
+    <div class="cost-row"><span>Parking Tre Cime — overnight (2 slots van)</span><span>€40 pp</span></div>
+    <div class="cost-row"><span>Entradas e transportes (Monte Baldo + Seceda + Sella Ronda)</span><span>~€109 pp</span></div>
+    <div class="cost-row"><span>Portagens autoestrada</span><span>~€30 pp</span></div>
+    <div class="cost-row"><span>Total estimado por pessoa</span><span>~€251 pp</span></div>
+  </div>
+  <p style="font-size:0.8rem; color:#888; margin-top:8px;">* Excluindo refeições, combustível e aluguer da van</p>
+
+  <!-- RESERVAS -->
+  <div class="section-title">Reservas — Links</div>
+  <div class="links">
+    <div class="link-row"><span>12–13 Jun · ③ Garda</span><a href="https://www.campingbrione.com/en/" target="_blank">Camping Brione Riva del Garda — ~€35/noite</a></div>
+    <div class="link-row"><span>13–14 Jun · ⑥ Selva</span><a href="https://park4night.com/en/place/515921" target="_blank">Área di Sosta Selva di Val Gardena, Strada Ruacia 28 — ~€20/noite</a></div>
+    <div class="link-row"><span>14–15 Jun · ⑦ Ortisei</span><a href="https://park4night.com/en/search/?lat=46.574&lng=11.672" target="_blank">Área di Sosta Ortisei — Parcheggio Ronce — ~€18–22/noite</a></div>
+    <div class="link-row"><span>15–16 Jun · ⑧ Corvara</span><a href="https://park4night.com/en/search/?lat=46.548&lng=11.877" target="_blank">Área di Sosta Corvara / Alta Badia — ~€18–22/noite</a></div>
+    <div class="link-row"><span>16–17 Jun · ⑩ Misurina</span><a href="https://park4night.com/en/place/14500" target="_blank">Area Sosta Camper Misurina — ~€20/noite</a></div>
+    <div class="link-row"><span>17–18 Jun · ⑪ Tre Cime</span><a href="https://auronzo.info/en/parking-tre-cime-di-lavaredo/" target="_blank">Rifugio Auronzo — 2 slots overnight, €80 total van — reserva obrigatória</a></div>
+    <div class="link-row"><span>18–19 Jun · ② Como</span><a href="https://www.campingmenaggio.com" target="_blank">Camping Menaggio, Via Lusardi 8 — ~€28/noite, beira-lago</a></div>
+    <div class="link-row"><span>13 Jun manhã · ④ Malcesine</span><a href="https://www.funiviedelbaldo.it/en/funivia-malcesine-monte-baldo-tickets-online" target="_blank">Teleférico Monte Baldo — reserva recomendada</a></div>
+    <div class="link-row"><span>14 Jun tarde · ⑦ Ortisei</span><a href="https://www.seceda.it/en/tickets" target="_blank">Teleférico Seceda — reserva obrigatória</a></div>
+  </div>
+
+</main>
+
+<footer>Italia Junho 2026 &mdash; Milão · Como · Garda · Dolomitas</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  var C = {
+    milano:    [45.464, 9.190],
+    como:      [45.986, 9.258],
+    garda:     [45.886, 10.840],
+    malcesine: [45.768, 10.808],
+    bolzano:   [46.498, 11.355],
+    gardena:   [46.556, 11.758],
+    seceda:    [46.575, 11.673],
+    pSella:    [46.506, 11.757],
+    pPordoi:   [46.488, 11.820],
+    pGardena:  [46.547, 11.809],
+    ortisei:   [46.574, 11.672],
+    corvara:   [46.548, 11.877],
+    braies:    [46.694, 12.085],
+    misurina:  [46.586, 12.250],
+    treCime:   [46.619, 12.300]
+  };
+
+  function tiles() {
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      maxZoom: 18
+    });
+  }
+
+  function numIcon(n, bg) {
+    return L.divIcon({
+      className: '',
+      html: '<div style="background:' + bg + ';color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:2px solid rgba(255,255,255,0.9);box-shadow:0 1px 4px rgba(0,0,0,0.45);">' + n + '</div>',
+      iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -15]
+    });
+  }
+
+  function dotIcon(bg) {
+    return L.divIcon({
+      className: '',
+      html: '<div style="background:' + bg + ';width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,0.9);box-shadow:0 1px 3px rgba(0,0,0,0.35);"></div>',
+      iconSize: [10, 10], iconAnchor: [5, 5], popupAnchor: [0, -8]
+    });
+  }
+
+  function mkMap(id, opts) {
+    var m = L.map(id, Object.assign({zoomControl: false, scrollWheelZoom: false, attributionControl: false}, opts || {}));
+    tiles().addTo(m);
+    return m;
+  }
+
+  function line(m, pts, color, dash) {
+    L.polyline(pts, {color: color, weight: 2.5, dashArray: dash || '6,4', opacity: 0.75}).addTo(m);
+  }
+
+  // --- DIA 1: Milão → Como → Garda ---
+  var m1 = mkMap('map-day1');
+  line(m1, [C.milano, C.como, C.garda], '#2980b9');
+  L.marker(C.milano, {icon: numIcon(1,  '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento 14h').addTo(m1);
+  L.marker(C.como,   {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Lago di Como</b><br>Paragem ~1h — Bellagio').addTo(m1);
+  L.marker(C.garda,  {icon: numIcon(3,  '#2980b9')}).bindPopup('<b>③ Riva del Garda</b><br>Camping Brione — 1 noite').addTo(m1);
+  m1.fitBounds([C.milano, C.como, C.garda], {padding: [28, 28]});
+
+  // --- DIA 2: Garda → Malcesine → Bolzano → Val Gardena ---
+  var m2 = mkMap('map-day2');
+  line(m2, [C.malcesine, C.bolzano, C.gardena], '#2980b9');
+  L.marker(C.malcesine, {icon: numIcon(4,  '#2980b9')}).bindPopup('<b>④ Malcesine</b><br>Teleférico Monte Baldo — D2').addTo(m2);
+  L.marker(C.bolzano,   {icon: numIcon(5,  '#2980b9')}).bindPopup('<b>⑤ Bolzano</b><br>Paragem ~1h30').addTo(m2);
+  L.marker(C.gardena,   {icon: numIcon(6,  '#c0392b')}).bindPopup('<b>⑥ Val Gardena (Selva)</b><br>1 noite D2').addTo(m2);
+  m2.fitBounds([C.malcesine, C.bolzano, C.gardena], {padding: [28, 28]});
+
+  // --- DIA 3: Selva → Seceda → Ortisei (noite) ---
+  var m3 = mkMap('map-day3');
+  line(m3, [C.gardena, C.seceda, C.ortisei], '#c0392b');
+  L.marker(C.gardena, {icon: numIcon(6,  '#c0392b')}).bindPopup('<b>⑥ Selva</b><br>Base de manhã').addTo(m3);
+  L.marker(C.seceda,  {icon: dotIcon('#c0392b')}).bindPopup('<b>Seceda</b><br>Teleférico + ridgeline').addTo(m3);
+  L.marker(C.ortisei, {icon: numIcon(7,  '#c0392b')}).bindPopup('<b>⑦ Ortisei</b><br>1 noite D3').addTo(m3);
+  m3.fitBounds([[46.52, 11.62], [46.62, 11.82]], {padding: [20, 20]});
+
+  // --- DIA 4: Ortisei → Sella Ronda → Corvara ---
+  var m4 = mkMap('map-day4');
+  line(m4, [C.ortisei, C.pSella, C.pPordoi, C.corvara], '#c0392b', null);
+  L.marker(C.ortisei,  {icon: numIcon(7,  '#c0392b')}).bindPopup('<b>⑦ Ortisei</b><br>Partida D4').addTo(m4);
+  L.marker(C.pSella,   {icon: dotIcon('#888')}).bindPopup('<b>Passo Sella</b><br>2244m').addTo(m4);
+  L.marker(C.pPordoi,  {icon: dotIcon('#888')}).bindPopup('<b>Passo Pordoi</b><br>2239m — almoço aqui').addTo(m4);
+  L.marker(C.corvara,  {icon: numIcon(8,  '#c0392b')}).bindPopup('<b>⑧ Corvara / Alta Badia</b><br>1 noite D4').addTo(m4);
+  m4.fitBounds([C.ortisei, C.pSella, C.pPordoi, C.corvara], {padding: [28, 28]});
+
+  // --- DIA 5: Corvara → Braies → Misurina ---
+  var m5 = mkMap('map-day5');
+  line(m5, [C.corvara, C.braies, C.misurina], '#c0392b');
+  L.marker(C.corvara,  {icon: numIcon(8,  '#c0392b')}).bindPopup('<b>⑧ Corvara</b><br>Saída ~08:30').addTo(m5);
+  L.marker(C.braies,   {icon: numIcon(9,  '#c0392b')}).bindPopup('<b>⑨ Lago di Braies</b><br>Chegada ~09:30').addTo(m5);
+  L.marker(C.misurina, {icon: numIcon(10, '#c0392b')}).bindPopup('<b>⑩ Misurina</b><br>Chegada ~13:30 — 1 noite').addTo(m5);
+  m5.fitBounds([C.corvara, C.braies, C.misurina], {padding: [28, 28]});
+
+  // --- DIA 6: Misurina → Tre Cime (nocturno) ---
+  var m6 = mkMap('map-day6');
+  line(m6, [C.misurina, C.treCime], '#6c3483', null);
+  L.marker(C.misurina, {icon: numIcon(10, '#c0392b')}).bindPopup('<b>⑩ Misurina</b><br>Saída ~17:30').addTo(m6);
+  L.marker(C.treCime,  {icon: numIcon(11, '#6c3483')}).bindPopup('<b>⑪ Tre Cime di Lavaredo</b><br>Chegada ~18h · Saída ~06h').addTo(m6);
+  m6.fitBounds([[46.56, 12.20], [46.65, 12.35]], {padding: [28, 28]});
+
+  // --- DIA 7: Tre Cime → Lago di Como ---
+  var m7 = mkMap('map-day7');
+  line(m7, [C.treCime, C.como], '#4a9070');
+  L.marker(C.treCime, {icon: numIcon(11, '#6c3483')}).bindPopup('<b>⑪ Tre Cime</b><br>Saída ~06:00').addTo(m7);
+  L.marker(C.como,    {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Lago di Como</b><br>Chegada ~10:30 — última noite').addTo(m7);
+  m7.fitBounds([C.treCime, C.como], {padding: [28, 28]});
+
+  // --- MAPA GERAL ---
+  var mo = L.map('overview-map', {scrollWheelZoom: false});
+  tiles().addTo(mo);
+  var fullRoute = [C.milano, C.como, C.garda, C.malcesine, C.bolzano, C.gardena, C.ortisei, C.corvara, C.braies, C.misurina, C.treCime, C.como, C.milano];
+  L.polyline(fullRoute, {color: '#1a2b3c', weight: 2, dashArray: '6,4', opacity: 0.55}).addTo(mo);
+  L.marker(C.milano,    {icon: numIcon(1,  '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento D1 · Entrega D8').addTo(mo);
+  L.marker(C.como,      {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Lago di Como</b><br>Paragem D1 · Última noite D7').addTo(mo);
+  L.marker(C.garda,     {icon: numIcon(3,  '#2980b9')}).bindPopup('<b>③ Riva del Garda</b><br>Camping Brione — 1 noite D1').addTo(mo);
+  L.marker(C.malcesine, {icon: numIcon(4,  '#2980b9')}).bindPopup('<b>④ Malcesine</b><br>Teleférico Monte Baldo — D2').addTo(mo);
+  L.marker(C.bolzano,   {icon: numIcon(5,  '#2980b9')}).bindPopup('<b>⑤ Bolzano</b><br>Paragem D2').addTo(mo);
+  L.marker(C.gardena,   {icon: numIcon(6,  '#c0392b')}).bindPopup('<b>⑥ Val Gardena (Selva)</b><br>1 noite D2').addTo(mo);
+  L.marker(C.ortisei,   {icon: numIcon(7,  '#c0392b')}).bindPopup('<b>⑦ Ortisei</b><br>1 noite D3 — após Seceda').addTo(mo);
+  L.marker(C.corvara,   {icon: numIcon(8,  '#c0392b')}).bindPopup('<b>⑧ Corvara / Alta Badia</b><br>1 noite D4 — Sella Ronda').addTo(mo);
+  L.marker(C.braies,    {icon: numIcon(9,  '#c0392b')}).bindPopup('<b>⑨ Lago di Braies</b><br>Paragem D5').addTo(mo);
+  L.marker(C.misurina,  {icon: numIcon(10, '#c0392b')}).bindPopup('<b>⑩ Misurina</b><br>1 noite D5–D6').addTo(mo);
+  L.marker(C.treCime,   {icon: numIcon(11, '#6c3483')}).bindPopup('<b>⑪ Tre Cime di Lavaredo</b><br>Chegada ~18h D6 · Saída ~06h D7').addTo(mo);
+  mo.fitBounds(fullRoute, {padding: [28, 28]});
+})();
+</script>
+
+</body>
+</html>
