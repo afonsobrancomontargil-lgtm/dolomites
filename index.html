@@ -51,6 +51,8 @@
     .event.restaurante { border-left: 4px solid #c0392b; background: #fdf2f0; }
     .event.caminhada { border-left: 4px solid #27ae60; background: #eafaf1; }
     .event.backup { border-left: 4px solid #95a5a6; background: #f2f3f4; }
+    a.waze { font-size: 0.72rem; background: #33ccff; color: #fff !important; padding: 1px 7px; border-radius: 3px; font-weight: bold; border: none !important; white-space: nowrap; margin-left: 6px; }
+    a.waze:hover { background: #00aadd; }
     .event.water { border-left: 4px solid #1abc9c; background: #e8f8f5; }
     .event.water.critical { border-left-color: #c0392b; background: #fdf2f0; }
 
@@ -124,12 +126,12 @@
       <div class="event stop">
         <span class="event-time">~16:30</span>
         <span class="event-desc"><strong>Paragem <a href="https://www.google.com/maps/search/?api=1&query=Verona,Italy" target="_blank">Verona</a></strong> — <a href="https://www.google.com/maps/search/?api=1&query=Arena+di+Verona" target="_blank">Arena di Verona</a>, <a href="https://www.google.com/maps/search/?api=1&query=Piazza+Bra+Verona" target="_blank">Piazza Bra</a>, centro histórico<span class="note">~1h30 — não se dorme aqui</span></span>
-        <span class="event-price">160 km</span>
+        <span class="event-price">160 km<a href="https://waze.com/ul?ll=45.438,10.993&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event">
         <span class="event-time">~18:00</span>
         <span class="event-desc">Verona → <a href="https://www.google.com/maps/search/?api=1&query=Riva+del+Garda,Italy" target="_blank">Riva del Garda</a> via A22<span class="note">Portagens ~€8</span></span>
-        <span class="event-price">90 km</span>
+        <span class="event-price">90 km<a href="https://waze.com/ul?ll=45.886,10.840&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event restaurante">
         <span class="event-time">~19:30</span>
@@ -173,7 +175,7 @@
       <div class="event">
         <span class="event-time">~13:00</span>
         <span class="event-desc">Partida Riva del Garda → <a href="https://www.google.com/maps/search/?api=1&query=Bolzano,Italy" target="_blank">Bolzano</a> via A22</span>
-        <span class="event-price">90 km</span>
+        <span class="event-price">90 km<a href="https://waze.com/ul?ll=46.498,11.355&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event stop">
         <span class="event-time">~14:00</span>
@@ -183,7 +185,7 @@
       <div class="event">
         <span class="event-time">~15:30</span>
         <span class="event-desc">Bolzano → <a href="https://www.google.com/maps/search/?api=1&query=Chiusa+Klausen+South+Tyrol" target="_blank">Chiusa (Klausen)</a> via A22</span>
-        <span class="event-price">25 km</span>
+        <span class="event-price">25 km<a href="https://waze.com/ul?ll=46.636,11.573&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event camping">
         <span class="event-time">~15:50</span>
@@ -223,7 +225,7 @@
       <div class="event">
         <span class="event-time">~08:00</span>
         <span class="event-desc">Chiusa → <a href="https://www.google.com/maps/search/?api=1&query=Val+di+Funes+Villnoss+South+Tyrol" target="_blank">Val di Funes</a> — início do Adolf Munkel Trail<span class="note">~25 km, ~30 min de Chiusa</span></span>
-        <span class="event-price">20 km</span>
+        <span class="event-price">20 km<a href="https://waze.com/ul?ll=46.600,11.716&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event caminhada">
         <span class="event-time">~08:30</span>
@@ -243,7 +245,7 @@
       <div class="event">
         <span class="event-time">~15:30</span>
         <span class="event-desc">Condução → <a href="https://www.google.com/maps/search/?api=1&query=Santa+Cristina+Val+Gardena" target="_blank">Santa Cristina Val Gardena</a></span>
-        <span class="event-price">30 km</span>
+        <span class="event-price">30 km<a href="https://waze.com/ul?ll=46.556,11.718&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event caminhada">
         <span class="event-time">~16:00</span>
@@ -253,7 +255,7 @@
       <div class="event">
         <span class="event-time">~18:30</span>
         <span class="event-desc">Regresso + condução → <a href="https://www.google.com/maps/search/?api=1&query=Ortisei+St+Ulrich+Val+Gardena" target="_blank">Ortisei</a></span>
-        <span class="event-price">5 km</span>
+        <span class="event-price">5 km<a href="https://waze.com/ul?ll=46.574,11.672&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event restaurante">
         <span class="event-time">~20:00</span>
@@ -292,7 +294,7 @@
       <div class="event">
         <span class="event-time">~08:00</span>
         <span class="event-desc">Partida Colfosco → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Sella+Dolomites" target="_blank">Passo Sella</a><span class="note">~15 km, ~20 min via Passo Gardena</span></span>
-        <span class="event-price">15 km</span>
+        <span class="event-price">15 km<a href="https://waze.com/ul?ll=46.506,11.757&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event restaurante">
         <span class="event-time">~08:30</span>
@@ -307,7 +309,7 @@
       <div class="event">
         <span class="event-time">~11:00</span>
         <span class="event-desc"><a href="https://www.valgardena.it/en/summer/sella-ronda/" target="_blank"><strong>Sella Ronda</strong></a> — <a href="https://www.google.com/maps/search/?api=1&query=Passo+Sella,Italy" target="_blank">Passo Sella</a> → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Pordoi,Italy" target="_blank">Passo Pordoi</a> → Arabba → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Campolongo,Italy" target="_blank">Campolongo</a><span class="note">Almoço de sandes no Passo Pordoi — vistas 360°</span></span>
-        <span class="event-price">~65 km</span>
+        <span class="event-price">~65 km<a href="https://waze.com/ul?ll=46.694,12.085&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event stop">
         <span class="event-time">~15:45</span>
@@ -317,7 +319,7 @@
       <div class="event">
         <span class="event-time">~17:00</span>
         <span class="event-desc">Lago di Braies → <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Misurina,Italy" target="_blank">Misurina</a> via SS51</span>
-        <span class="event-price">65 km</span>
+        <span class="event-price">65 km<a href="https://waze.com/ul?ll=46.586,12.250&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event camping">
         <span class="event-time">~18:15</span>
@@ -351,7 +353,7 @@
       <div class="event">
         <span class="event-time">~06:30</span>
         <span class="event-desc">Misurina → <a href="https://www.google.com/maps/search/?api=1&query=Passo+Tre+Croci+Dolomites" target="_blank">Passo Tre Croci</a> — início do trilho Sorapis<span class="note">5 km de Misurina, ~10 min</span></span>
-        <span class="event-price">5 km</span>
+        <span class="event-price">5 km<a href="https://waze.com/ul?ll=46.567,12.233&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event caminhada">
         <span class="event-time">~07:00</span>
@@ -361,7 +363,7 @@
       <div class="event">
         <span class="event-time">~12:00</span>
         <span class="event-desc">Regresso ao Passo Tre Croci + condução → <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Misurina" target="_blank">Misurina</a></span>
-        <span class="event-price">5 km</span>
+        <span class="event-price">5 km<a href="https://waze.com/ul?ll=46.586,12.250&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event">
         <span class="event-time">Tarde</span>
@@ -376,7 +378,7 @@
       <div class="event warning">
         <span class="event-time">~00:00</span>
         <span class="event-desc"><strong>Condução Misurina → <a href="https://www.google.com/maps/search/?api=1&query=Rifugio+Auronzo+Tre+Cime+di+Lavaredo" target="_blank">Rifugio Auronzo</a></strong> — chegar antes da meia-noite de 17 Jun<span class="note">1 slot €40 van · Válido 00h00–11h59 Jun 17 · <a href="https://auronzo.info/en/parking-tre-cime-di-lavaredo/" target="_blank">Reserva obrigatória em auronzo.info</a> · Dormir na van</span></span>
-        <span class="event-price">€40 total | 8 km</span>
+        <span class="event-price">€40 | 8 km<a href="https://waze.com/ul?ll=46.619,12.300&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event backup">
         <span class="event-time">Backup</span>
@@ -431,7 +433,7 @@
       <div class="event warning">
         <span class="event-time">~12:00</span>
         <span class="event-desc"><strong>⚠️ SAÍDA OBRIGATÓRIA — slot expira às 11h59</strong><span class="note">Condução Auronzo → <a href="https://www.google.com/maps/search/?api=1&query=Cortina+d'Ampezzo,Italy" target="_blank">Cortina d'Ampezzo</a> (~15 min)</span></span>
-        <span class="event-price">8 km</span>
+        <span class="event-price">8 km<a href="https://waze.com/ul?ll=46.540,12.136&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event stop">
         <span class="event-time">~12:30</span>
@@ -470,7 +472,7 @@
       <div class="event">
         <span class="event-time">~08:30</span>
         <span class="event-desc">Saída <a href="https://www.google.com/maps/search/?api=1&query=Cortina+d'Ampezzo,Italy" target="_blank">Cortina d'Ampezzo</a> → <a href="https://www.google.com/maps/search/?api=1&query=Menaggio+Lago+di+Como" target="_blank">Lago di Como</a> via A27 → A4 → A9<span class="note">~300 km, ~3.5h. Portagens ~€15</span></span>
-        <span class="event-price">300 km</span>
+        <span class="event-price">300 km<a href="https://waze.com/ul?ll=46.018,9.235&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event stop">
         <span class="event-time">~12:00</span>
@@ -508,7 +510,7 @@
       <div class="event">
         <span class="event-time">~09:00</span>
         <span class="event-desc">Partida <a href="https://www.google.com/maps/search/?api=1&query=Menaggio,Como,Italy" target="_blank">Menaggio</a> → <a href="https://www.google.com/maps/search/?api=1&query=Milan,Italy" target="_blank">Milão</a> via A9<span class="note">~50 km, ~45 min. Portagem ~€5</span></span>
-        <span class="event-price">50 km</span>
+        <span class="event-price">50 km<a href="https://waze.com/ul?ll=45.464,9.190&navigate=yes" target="_blank" class="waze">Waze</a></span>
       </div>
       <div class="event warning">
         <span class="event-time">~09:45</span>
