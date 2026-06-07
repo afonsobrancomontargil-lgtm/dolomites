@@ -102,14 +102,14 @@
 
   <!-- DIA 1 -->
   <div class="day transit">
-    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Foto_del_Lago_di_Como_dalla_cresta_della_montagna.jpg" alt="Lago di Como" loading="lazy">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Arena_di_Verona_2015.jpg" alt="Arena di Verona" loading="lazy">
     <div class="day-header">
       <span class="day-number">Dia 1</span>
       <span class="day-date">12 Jun, Sexta-feira</span>
       <span class="tag viagem">Viagem</span>
     </div>
-    <div class="day-title">Levantamento → Como → Garda</div>
-    <div class="day-description">Levantamento da carrinha às 14h em Milão. Compras no Lidl. Paragem de ~1h em Lago di Como. Continuar para Riva del Garda e jantar em Limone sul Garda no <strong>Dal Bigaröla</strong>.</div>
+    <div class="day-title">Levantamento → Verona → Garda</div>
+    <div class="day-description">Levantamento da carrinha às 14h em Milão. Compras no Lidl. Paragem de ~1h30 em <strong>Verona</strong> — Arena di Verona, Piazza Bra, centro histórico. Continuar para Riva del Garda e jantar em Limone sul Garda no <strong>Dal Bigaröla</strong>.</div>
     <div class="events">
       <div class="event warning">
         <span class="event-time">14:00</span>
@@ -122,14 +122,14 @@
         <span class="event-price">~€30–40 total</span>
       </div>
       <div class="event stop">
-        <span class="event-time">~15:30</span>
-        <span class="event-desc"><strong>Paragem <a href="https://www.google.com/maps/search/?api=1&query=Lago+di+Como,Italy" target="_blank">Lago di Como</a></strong> — <a href="https://www.google.com/maps/search/?api=1&query=Bellagio,Como,Italy" target="_blank">Bellagio</a> ou <a href="https://www.google.com/maps/search/?api=1&query=Menaggio,Como,Italy" target="_blank">Menaggio</a><span class="note">~1h — não se dorme aqui</span></span>
-        <span class="event-price">50 km</span>
+        <span class="event-time">~16:30</span>
+        <span class="event-desc"><strong>Paragem <a href="https://www.google.com/maps/search/?api=1&query=Verona,Italy" target="_blank">Verona</a></strong> — <a href="https://www.google.com/maps/search/?api=1&query=Arena+di+Verona" target="_blank">Arena di Verona</a>, <a href="https://www.google.com/maps/search/?api=1&query=Piazza+Bra+Verona" target="_blank">Piazza Bra</a>, centro histórico<span class="note">~1h30 — não se dorme aqui</span></span>
+        <span class="event-price">160 km</span>
       </div>
       <div class="event">
-        <span class="event-time">~16:30</span>
-        <span class="event-desc">Como → <a href="https://www.google.com/maps/search/?api=1&query=Riva+del+Garda,Italy" target="_blank">Riva del Garda</a> via A4<span class="note">Portagens ~€12</span></span>
-        <span class="event-price">150 km</span>
+        <span class="event-time">~18:00</span>
+        <span class="event-desc">Verona → <a href="https://www.google.com/maps/search/?api=1&query=Riva+del+Garda,Italy" target="_blank">Riva del Garda</a> via A22<span class="note">Portagens ~€8</span></span>
+        <span class="event-price">90 km</span>
       </div>
       <div class="event restaurante">
         <span class="event-time">~19:30</span>
@@ -565,6 +565,7 @@
   var C = {
     milano:    [45.464,  9.190],
     como:      [45.986,  9.258],
+    verona:    [45.438, 10.993],
     garda:     [45.886, 10.840],
     limone:    [45.813, 10.793],
     malcesine: [45.768, 10.808],
@@ -625,14 +626,14 @@
     L.polyline(pts, {color: color, weight: 2.5, dashArray: dash || '6,4', opacity: 0.75}).addTo(m);
   }
 
-  // --- DIA 1: Milão → Como → Garda (+ Dal Bigaröla) ---
+  // --- DIA 1: Milão → Verona → Garda (+ Dal Bigaröla) ---
   var m1 = mkMap('map-day1');
-  line(m1, [C.milano, C.como, C.garda], '#2980b9');
-  L.marker(C.milano, {icon: numIcon(1, '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento 14h').addTo(m1);
-  L.marker(C.como,   {icon: numIcon(2, '#2980b9')}).bindPopup('<b>② Lago di Como</b><br>Paragem ~1h').addTo(m1);
-  L.marker(C.garda,  {icon: numIcon(3, '#2980b9')}).bindPopup('<b>③ Riva del Garda</b><br>Camping Brione').addTo(m1);
-  L.marker(C.limone, {icon: dotIcon('#c0392b')}).bindPopup('<b>🍕 Dal Bigaröla</b><br>Jantar — Limone sul Garda').addTo(m1);
-  m1.fitBounds([C.milano, C.como, C.garda], {padding: [28, 28]});
+  line(m1, [C.milano, C.verona, C.garda], '#2980b9');
+  L.marker(C.milano,  {icon: numIcon(1, '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento 14h').addTo(m1);
+  L.marker(C.verona,  {icon: numIcon(2, '#2980b9')}).bindPopup('<b>② Verona</b><br>Arena di Verona, Piazza Bra · ~1h30').addTo(m1);
+  L.marker(C.garda,   {icon: numIcon(3, '#2980b9')}).bindPopup('<b>③ Riva del Garda</b><br>Camping Brione').addTo(m1);
+  L.marker(C.limone,  {icon: dotIcon('#c0392b')}).bindPopup('<b>🍕 Dal Bigaröla</b><br>Jantar — Limone sul Garda').addTo(m1);
+  m1.fitBounds([C.milano, C.verona, C.garda], {padding: [28, 28]});
 
   // --- DIA 2: Garda → Malcesine → Bolzano → Chiusa (+ Turmwirt) ---
   var m2 = mkMap('map-day2');
@@ -694,7 +695,7 @@
   // --- MAPA GERAL ---
   var mo = L.map('overview-map', {scrollWheelZoom: false});
   tiles().addTo(mo);
-  var fullRoute = [C.milano, C.como, C.garda, C.malcesine, C.bolzano, C.chiusa, C.colfosco, C.pSella, C.braies, C.misurina, C.treCime, C.cortina, C.menaggio, C.milano];
+  var fullRoute = [C.milano, C.verona, C.garda, C.malcesine, C.bolzano, C.chiusa, C.colfosco, C.pSella, C.braies, C.misurina, C.treCime, C.cortina, C.menaggio, C.milano];
   L.polyline(fullRoute, {color: '#1a2b3c', weight: 2, dashArray: '6,4', opacity: 0.55}).addTo(mo);
 
   // dot markers (activities / stops not overnight)
@@ -708,7 +709,7 @@
 
   // numbered overnight stops
   L.marker(C.milano,   {icon: numIcon(1,  '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento D1 · Entrega D8').addTo(mo);
-  L.marker(C.como,     {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Lago di Como</b><br>Paragem D1').addTo(mo);
+  L.marker(C.verona,   {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Verona</b><br>Arena di Verona · Paragem D1').addTo(mo);
   L.marker(C.garda,    {icon: numIcon(3,  '#2980b9')}).bindPopup('<b>③ Riva del Garda</b><br>Camping Brione — 1 noite D1').addTo(mo);
   L.marker(C.malcesine,{icon: numIcon(4,  '#2980b9')}).bindPopup('<b>④ Malcesine</b><br>Monte Baldo D2').addTo(mo);
   L.marker(C.bolzano,  {icon: numIcon(5,  '#2980b9')}).bindPopup('<b>⑤ Bolzano</b><br>Paragem D2').addTo(mo);
