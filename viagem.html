@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Italia Junho 2026 — Diário de Viagem</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Georgia', serif; background: #f5f2ed; color: #2c2c2c; line-height: 1.7; }
+
+    header { background: #1a2b3c; color: #fff; padding: 60px 40px; text-align: center; }
+    header h1 { font-size: 2.4rem; letter-spacing: 0.04em; margin-bottom: 10px; }
+    header p { font-size: 1rem; color: #a8bfd0; letter-spacing: 0.08em; text-transform: uppercase; }
+    header .subtitle { font-size: 0.85rem; color: #7dc4e4; margin-top: 12px; letter-spacing: 0.06em; font-style: italic; text-transform: none; }
+
+    .stats { display: flex; justify-content: center; gap: 40px; background: #233447; padding: 20px 40px; flex-wrap: wrap; }
+    .stat { text-align: center; color: #fff; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; color: #7dc4e4; }
+    .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #a8bfd0; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+    .day { margin-bottom: 50px; border-left: 4px solid #1a2b3c; padding-left: 24px; }
+    .day.transit { border-left-color: #7dc4e4; }
+    .day.dolomites { border-left-color: #c0392b; }
+    .day.return { border-left-color: #4a9070; }
+
+    .day-image { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 16px; display: block; }
+
+    .day-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .day-number { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.12em; color: #fff; background: #1a2b3c; padding: 3px 10px; border-radius: 2px; white-space: nowrap; }
+    .day.transit .day-number { background: #2980b9; }
+    .day.dolomites .day-number { background: #c0392b; }
+    .day.return .day-number { background: #4a9070; }
+
+    .tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 2px; }
+    .tag.viagem { background: #d6eaf8; color: #1a5276; }
+    .tag.dolomites { background: #fadbd8; color: #922b21; }
+    .tag.return { background: #d5f5e3; color: #1e8449; }
+
+    .day-date { font-size: 1rem; color: #666; font-style: italic; }
+    .day-title { font-size: 1.4rem; font-weight: bold; color: #1a2b3c; margin-bottom: 10px; }
+    .day-description { font-size: 1rem; color: #444; margin-bottom: 16px; max-width: 720px; }
+
+    .events { display: flex; flex-direction: column; gap: 8px; }
+    .event { display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; align-items: start; background: #fff; border-radius: 4px; padding: 10px 14px; font-size: 0.9rem; }
+    .event.camping { border-left: 4px solid #2e7d32; background: #f1f8f1; }
+    .event.stop { border-left: 4px solid #2980b9; background: #eaf2fb; }
+    .event.nocturno { border-left: 4px solid #6c3483; background: #f5eef8; }
+    .event.restaurante { border-left: 4px solid #c0392b; background: #fdf2f0; }
+    .event.caminhada { border-left: 4px solid #27ae60; background: #eafaf1; }
+    .event.highlight { border-left: 4px solid #f39c12; background: #fef9e7; }
+
+    .event-time { color: #888; font-style: italic; padding-top: 1px; }
+    .event-desc { color: #2c2c2c; }
+    .event-desc .note { display: block; font-size: 0.8rem; color: #666; margin-top: 3px; }
+    .event-desc .note.ok { color: #27ae60; }
+    .event-desc .note.destaque { color: #c0392b; }
+    .event-price { color: #555; font-size: 0.85rem; white-space: nowrap; text-align: right; }
+
+    a { color: #1a2b3c; text-decoration: none; border-bottom: 1px solid #7dc4e4; }
+    a:hover { color: #2980b9; border-bottom-color: #2980b9; }
+    .event.camping a { color: #2e7d32; border-bottom-color: #81c784; }
+    .event.camping a:hover { color: #1b5e20; }
+    .event.restaurante a { color: #922b21; border-bottom-color: #e74c3c; }
+
+    .section-title { font-size: 1.1rem; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: #1a2b3c; margin: 50px 0 20px; border-bottom: 2px solid #1a2b3c; padding-bottom: 8px; }
+
+    .costs { background: #fff; border-radius: 4px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .cost-row { display: flex; justify-content: space-between; font-size: 0.95rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    .cost-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.05rem; color: #1a2b3c; padding-top: 8px; }
+
+    footer { text-align: center; padding: 30px; color: #aaa; font-size: 0.8rem; border-top: 1px solid #ddd; margin-top: 60px; }
+
+    .day-map { height: 180px; border-radius: 4px; margin-top: 16px; border: 1px solid #ddd; }
+    #overview-map { height: 460px; border-radius: 4px; border: 1px solid #ddd; }
+    .map-legend { font-size: 0.78rem; color: #888; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Italia Junho 2026</h1>
+  <p>Milão &rarr; Garda &rarr; Dolomitas &rarr; Como &rarr; Milão</p>
+  <p class="subtitle">12–19 Junho &mdash; Diário de viagem</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">8 dias</div><div class="stat-label">12–19 Junho</div></div>
+  <div class="stat"><div class="stat-value">~1400 km</div><div class="stat-label">Percurso total</div></div>
+  <div class="stat"><div class="stat-value">7 noites</div><div class="stat-label">5 Dolomitas · 1 Garda · 2 Como</div></div>
+  <div class="stat"><div class="stat-value">5 trilhos</div><div class="stat-label">Adolf Munkel · Toni Demetz · Sorapis · Cadini · Tre Cime</div></div>
+</div>
+
+<main>
+
+  <!-- DIA 1 -->
+  <div class="day transit">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Arena_di_Verona_2015.jpg" alt="Arena di Verona" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 1</span>
+      <span class="day-date">12 Jun, Sexta-feira</span>
+      <span class="tag viagem">Viagem</span>
+    </div>
+    <div class="day-title">Milão → Verona → Riva del Garda</div>
+    <div class="day-description">Levantámos a carrinha por volta das 11h em Milão — processo demorado com muita gente no depósito. Compras no Lidl a 10 min de carro (~1h30–2h). Paragem em <strong>Verona</strong> — havia um festival na Arena di Verona, o que animou ainda mais a visita. Tudo demorou mais do que o previsto, por isso jantar foi cozinhado na carrinha em Solarolo, não no Dal Bigaröla.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">~11:00</span>
+        <span class="event-desc"><strong>Levantamento da carrinha — Milão</strong><span class="note">Processo demorado — havia muita gente no depósito, contar com espera.</span><span class="note">A nossa carrinha não tinha rádio nem câmara/sensores de estacionamento, mas tinha painéis solares no telhado a produzir energia.</span><span class="note destaque">⚠️ Verificar na entrega: pedir para ler o contrato (só mostram para assinar) · confirmar extintor (o nosso não tinha — pedir um) · verificar que o gás está desligado antes de arrancar · ligar o frigorífico logo na entrega (vem desligado por defeito) · testar todas as luzes interiores (só percebemos como funcionava uma delas na devolução).</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~16:30</span>
+        <span class="event-desc"><strong>Verona</strong> — <a href="https://www.google.com/maps/search/?api=1&query=Arena+di+Verona" target="_blank">Arena di Verona</a>, <a href="https://www.google.com/maps/search/?api=1&query=Piazza+Bra+Verona" target="_blank">Piazza Bra</a>, centro histórico</span>
+        <span class="event-price">160 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Jantar</span>
+        <span class="event-desc"><strong>Jantar cozinhado na carrinha</strong> — Solarolo<span class="note">Tudo demorou mais do que o previsto — não chegámos a ir ao Dal Bigaröla.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">~21:00</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/52392/" target="_blank"><strong>Solarolo Parking Area</strong></a> — Solarolo, Lago di Garda (margem oeste)<span class="note">Vistas para o lago · porto e praia a 5–10 min a pé</span></span>
+        <span class="event-price">~€10–20</span>
+      </div>
+    </div>
+    <div id="map-day1" class="day-map"></div>
+  </div>
+
+  <!-- DIA 2 -->
+  <div class="day transit">
+    <div class="day-header">
+      <span class="day-number">Dia 2</span>
+      <span class="day-date">13 Jun, Sábado</span>
+      <span class="tag viagem">Viagem</span>
+    </div>
+    <div class="day-title">Lago di Garda → Plose (Bressanone)</div>
+    <div class="day-description">Manhã a nadar no Lago di Garda. Depois partimos para as montanhas. Jantar cozinhado na carrinha. Pernoita no parque Plose, acima de Bressanone.</div>
+    <div class="events">
+      <div class="event stop">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc"><strong>Banho no Lago di Garda</strong></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/329982/" target="_blank"><strong>Parque Plose</strong></a> — Bressanone (Brixen), Tirol do Sul · ~1960m altitude<span class="note">Gratuito após as 18h · rodeado de pinheiros · ponto de partida para caminhadas</span></span>
+        <span class="event-price">€0</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Jantar</span>
+        <span class="event-desc"><strong>Jantar cozinhado na carrinha</strong><span class="note">Não fomos ao Turmwirt apesar da reserva confirmada.</span></span>
+        <span class="event-price">—</span>
+      </div>
+    </div>
+    <div id="map-day2" class="day-map"></div>
+  </div>
+
+  <!-- DIA 3 -->
+  <div class="day dolomites">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Val_Gardena_with_Sella_and_Saslonch_from_Resciesa.JPG" alt="Val Gardena" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 3</span>
+      <span class="day-date">14 Jun, Domingo</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Adolf Munkel Trail → Tubladel</div>
+    <div class="day-description">Manhã de caminhada no Vale de Funes com o <strong>Adolf Munkel Trail</strong> — feito no sentido inverso. Primeira caminhada da viagem, a dar o tom para o resto. Jantar no <strong>Tubladel</strong> em Ortisei (Guia Michelin). Pernoita no parque SETIL.</div>
+    <div class="events">
+      <div class="event caminhada">
+        <span class="event-time">~08:30</span>
+        <span class="event-desc"><strong><a href="https://www.alltrails.com/trail/italy/south-tyrol/adolf-munkel-trail" target="_blank">Adolf Munkel Trail</a></strong> — Val di Funes<span class="note">Feito no sentido inverso — correu muito bem. 3–5h · Moderado · Vistas para o Gruppo delle Odle.</span><span class="note destaque">⚠️ Descarregar o trilho no AllTrails antes de partir — fundamental em todas as caminhadas desta viagem.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~13:30</span>
+        <span class="event-desc"><strong><a href="https://www.google.com/maps/search/?api=1&query=St+John+Church+Ranui+Val+di+Funes" target="_blank">Igreja St John in Ranui</a></strong> — ícone fotográfico do Val di Funes<span class="note">Não pagámos a entrada de €5.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/646136/" target="_blank"><strong>Área de Serviços Vahrn</strong></a> — scarico + água fresca, junto a Bressanone<span class="note">Acesso pela A22 — portagem ~€2 em cada sentido (~€4 total). Vale a pena: serviços pagos custam €15+.</span></span>
+        <span class="event-price">~€4 portagem</span>
+      </div>
+      <div class="event restaurante">
+        <span class="event-time">~20:00</span>
+        <span class="event-desc"><strong>Jantar — <a href="https://guide.michelin.com/us/en/trentino-alto-adige/ortisei/restaurant/tubladel" target="_blank">Tubladel</a></strong> — Via Trebinger 22, Ortisei (Guia Michelin)<span class="note">Cozinha Ladin, carnes e caça, Catalan oven</span></span>
+        <span class="event-price">~€35–45</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">~22:00</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/610235/" target="_blank"><strong>SETIL Parking</strong></a> — Ortisei, Val Gardena<span class="note">Parque mesmo em Ortisei · acesso pedonal ao centro · funicular Siusi Alps nas proximidades</span></span>
+        <span class="event-price">~€25</span>
+      </div>
+    </div>
+    <div id="map-day3" class="day-map"></div>
+  </div>
+
+  <!-- DIA 4 -->
+  <div class="day dolomites">
+    <div class="day-header">
+      <span class="day-number">Dia 4</span>
+      <span class="day-date">15 Jun, Segunda-feira</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Friedrich August + Coffin Gondola → Utia Toni Demetz → SR48</div>
+    <div class="day-description">Saída cedo para Passo Sella — bomboloni no <strong>Rifugio Friedrich August</strong> e <strong>Coffin Gondola</strong>. À tarde, trilho não planeado até à <strong>Utia Toni Demetz</strong> — feito ao contrário, o mais desafiante de toda a viagem. Lago di Braies e Sella Ronda não aconteceram — demasiado cansados. Passámos por Cortina d'Ampezzo (como aconteceu mais vezes ao longo da viagem, por ser rota de passagem) e descansámos várias horas na carrinha no parque SR48.</div>
+    <div class="events">
+      <div class="event restaurante">
+        <span class="event-time">~08:30</span>
+        <span class="event-desc"><strong><a href="https://www.friedrichaugust.it/en/" target="_blank">Rifugio Friedrich August</a></strong> — bomboloni à crema, Col Rodella<span class="note destaque">Antes das 10h30 — esgotam!</span></span>
+        <span class="event-price">~€3–9</span>
+      </div>
+      <div class="event caminhada">
+        <span class="event-time">~10:00</span>
+        <span class="event-desc"><strong><a href="https://sassolungo.bz/en/timetables-and-prices/" target="_blank">Coffin Gondola</a></strong> — Forcella Sassolungo, Passo Sella<span class="note">€20 one-way · Cabine 1–2 pessoas, embarque em movimento</span></span>
+        <span class="event-price">~€20</span>
+      </div>
+      <div class="event caminhada">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc"><strong>Utia Toni Demetz</strong> — trilho não planeado, feito ao contrário<span class="note destaque">O trilho mais desafiante de toda a viagem. Não estava previsto.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Final do dia</span>
+        <span class="event-desc">Descanso na carrinha — <a href="https://park4night.com/lieu/459000/" target="_blank">Parque SR48</a>, passagem por Cortina d'Ampezzo<span class="note">Cortina não foi visitada como destino — apenas passagem. Lago di Braies e Sella Ronda não aconteceram — demasiado cansados.</span></span>
+        <span class="event-price">€0</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/459000/" target="_blank"><strong>Parque SR48</strong></a> — Cortina d'Ampezzo<span class="note">Gratuito · ~60 lugares · trailhead do Lago di Sorapis a 15–20 min a pé</span></span>
+        <span class="event-price">€0</span>
+      </div>
+    </div>
+    <div id="map-day4" class="day-map"></div>
+  </div>
+
+  <!-- DIA 5 -->
+  <div class="day dolomites">
+    <div class="day-header">
+      <span class="day-number">Dia 5</span>
+      <span class="day-date">16 Jun, Terça-feira</span>
+      <span class="tag dolomites">Dolomitas</span>
+    </div>
+    <div class="day-title">Lago di Sorapis → Calalzo di Cadore → Rifugio Auronzo</div>
+    <div class="day-description">Manhã no trilho do <strong>Lago di Sorapis</strong> — menos difícil do que a Utia Toni Demetz, lago turquesa escondido no fim. Tarde na <strong>Area Sosta de Calalzo di Cadore</strong> — gratuita em época baixa, vista incrível, quase vazia. Às ~23h partimos para o Rifugio Auronzo onde dormimos cerca de 4 horas.</div>
+    <div class="events">
+      <div class="event caminhada">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc"><strong><a href="https://www.alltrails.com/trail/italy/belluno/lago-di-sorapis-trail" target="_blank">Lago di Sorapis</a></strong> — via Passo Tre Croci<span class="note">12.7 km · 598m desnível · Menos exigente do que o esperado comparado com a Utia Toni Demetz · Lago turquesa escondido no fim.</span></span>
+        <span class="event-price">12.7 km</span>
+      </div>
+      <div class="event highlight">
+        <span class="event-time">Tarde</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/217104/" target="_blank"><strong>Area Sosta Calalzo di Cadore</strong></a> — scarico + água · vista incrível<span class="note ok">Gratuito em época baixa · Quase vazio (2–3 veículos) · Passámos boa parte da tarde aqui · Muito recomendado.</span></span>
+        <span class="event-price">€0</span>
+      </div>
+      <div class="event nocturno">
+        <span class="event-time">~23:00</span>
+        <span class="event-desc"><strong><a href="https://www.google.com/maps/search/?api=1&query=Rifugio+Auronzo+Tre+Cime+di+Lavaredo" target="_blank">Rifugio Auronzo</a></strong> — dormir na van ~4 horas antes do Dia 6<span class="note">Slot €60 (não €40 como previsto) · Vista incrível.</span></span>
+        <span class="event-price">€60 | 8 km</span>
+      </div>
+    </div>
+    <div id="map-day5" class="day-map"></div>
+  </div>
+
+  <!-- DIA 6 -->
+  <div class="day dolomites">
+    <img class="day-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Drei_Zinnen_Tre_Cime_di_Lavaredo_Dolomites.jpg" alt="Tre Cime di Lavaredo" loading="lazy">
+    <div class="day-header">
+      <span class="day-number">Dia 6</span>
+      <span class="day-date">17 Jun, Quarta-feira</span>
+      <span class="tag dolomites">Dolomitas — madrugada</span>
+    </div>
+    <div class="day-title">Cadini (5h sunrise) + Tre Cime → 7h de condução → Lago di Como</div>
+    <div class="day-description">Acordámos às ~4h com apenas ~4h de sono. Às 5h já estávamos nos trilhos — boa decisão: às 5h40 já havia filas nos sítios mais populares, incluindo um casal a tirar fotografias de casamento. Saímos do Rifugio Auronzo às 11h30 (antes do prazo das 12h para evitar multa). Em vez de Cortina, fomos directos ao Lago di Como — 7 horas de condução com muito pouco sono.</div>
+    <div class="events">
+      <div class="event caminhada">
+        <span class="event-time">~05:00</span>
+        <span class="event-desc"><strong><a href="https://www.alltrails.com/trail/italy/belluno/cadini-di-misurina" target="_blank">Cadini di Misurina</a></strong> — nascer do sol<span class="note ok">3.5 km · Moderado · 211m · Às 5h40 já havia filas — ótima decisão começar cedo.</span></span>
+        <span class="event-price">3.5 km</span>
+      </div>
+      <div class="event caminhada">
+        <span class="event-time">~07:30</span>
+        <span class="event-desc"><strong><a href="https://www.alltrails.com/trail/italy/belluno/tre-cime-di-lavaredo" target="_blank">Tre Cime di Lavaredo loop</a></strong> → <a href="https://www.google.com/maps/search/?api=1&query=Rifugio+Locatelli+Tre+Cime" target="_blank">Rifugio Locatelli</a><span class="note ok">~9 km · Fácil–Moderado</span></span>
+        <span class="event-price">~9 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~10:30</span>
+        <span class="event-desc">Almoço + duche no Rifugio Auronzo<span class="note destaque">⚠️ O slot é de 12 horas — após esse prazo aplicam-se multas. Saímos às 11h30.</span></span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~11:30</span>
+        <span class="event-desc">Partida Rifugio Auronzo → <strong>Lago di Como</strong> — viagem directa de ~7 horas<span class="note">Não fomos a Cortina. Condução difícil com apenas ~4h de sono. Fizemos esforço consciente para evitar portagens — ainda assim pagámos ~€15 no total.</span></span>
+        <span class="event-price">~€15 portagens</span>
+      </div>
+    </div>
+    <div id="map-day6" class="day-map"></div>
+  </div>
+
+  <!-- DIA 7 -->
+  <div class="day return">
+    <div class="day-header">
+      <span class="day-number">Dia 7</span>
+      <span class="day-date">18 Jun, Quinta-feira</span>
+      <span class="tag return">Regresso</span>
+    </div>
+    <div class="day-title">Cortina → Lago di Como</div>
+    <div class="day-description">Saída de Cortina (~8h30). Drive de ~3.5h para o Lago di Como via A27 → A4 → A9. Chegada a meio do dia — última tarde com vista para o lago em Menaggio.</div>
+    <div class="events">
+      <div class="event">
+        <span class="event-time">~08:30</span>
+        <span class="event-desc">Cortina d'Ampezzo → Lago di Como via A27 → A4 → A9<span class="note">~300 km, ~3.5h</span></span>
+        <span class="event-price">300 km</span>
+      </div>
+      <div class="event stop">
+        <span class="event-time">~12:00</span>
+        <span class="event-desc">Chegada ao Lago di Como — descanso com vista para o lago</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event restaurante">
+        <span class="event-time">Jantar</span>
+        <span class="event-desc"><strong>Jantar no Camping La Fornace</strong> — bar/restaurante com pizza, vista directa para o lago</span>
+        <span class="event-price">—</span>
+      </div>
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/40711/" target="_blank"><strong>Camping La Fornace</strong></a> — Oliveto Lario, Lago di Como<span class="note">Vista directa para o lago · praia privada · bus para Bellagio na entrada</span></span>
+        <span class="event-price">€35 (2 pax)</span>
+      </div>
+    </div>
+    <div id="map-day7" class="day-map"></div>
+  </div>
+
+  <!-- DIA 7 cont / DIA 8 -->
+  <div class="day transit">
+    <div class="day-header">
+      <span class="day-number">Dia 8</span>
+      <span class="day-date">18–19 Jun, Quinta → Sexta</span>
+      <span class="tag viagem">Entrega</span>
+    </div>
+    <div class="day-title">Última noite no Como → Entrega da Carrinha — Milão</div>
+    <div class="events">
+      <div class="event camping">
+        <span class="event-time">Noite</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/356599/" target="_blank"><strong>Mandello del Lario</strong></a> — Lago di Como<span class="note">Gratuito · junto à praia · estacionamento nocturno em veículo permitido</span></span>
+        <span class="event-price">€0</span>
+      </div>
+      <div class="event">
+        <span class="event-time">Manhã</span>
+        <span class="event-desc"><a href="https://park4night.com/lieu/622590/" target="_blank"><strong>Lecco — Via Toscanini</strong></a> — scarico + água fresca<span class="note">Gratuito · serviços de água e cinzentas · junto ao lago</span></span>
+        <span class="event-price">€0</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~09:00</span>
+        <span class="event-desc">Lecco → Milão via A36/A9<span class="note">~55 km, ~45 min</span></span>
+        <span class="event-price">55 km</span>
+      </div>
+      <div class="event">
+        <span class="event-time">~09:45</span>
+        <span class="event-desc"><strong>Entrega da carrinha — Milão</strong></span>
+        <span class="event-price">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA GERAL -->
+  <div class="section-title">Mapa da Viagem — Percurso Completo</div>
+  <div id="overview-map"></div>
+  <p class="map-legend">Clica em cada marcador para detalhes.</p>
+
+  <!-- CUSTOS -->
+  <div class="section-title">Custos</div>
+  <div class="costs">
+    <div class="cost-row"><span>Campings / Áreas di Sosta (7 noites)</span><span>~€93 pp</span></div>
+    <div class="cost-row"><span>Parking Tre Cime — 1 slot van (00h–12h)</span><span>€20 pp</span></div>
+    <div class="cost-row"><span>Monte Baldo + Col Raiser + Coffin Gondola</span><span>~€84 pp</span></div>
+    <div class="cost-row"><span>Lago di Braies — P4</span><span>€15 pp</span></div>
+    <div class="cost-row"><span>Portagens autoestrada</span><span>~€30 pp</span></div>
+    <div class="cost-row"><span>Total por pessoa (exc. refeições e combustível)</span><span>~€242 pp</span></div>
+  </div>
+
+</main>
+
+<footer>Italia Junho 2026 &mdash; Milão · Garda · Dolomitas · Como</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  var C = {
+    milano:     [45.464,   9.190],
+    verona:     [45.438,  10.993],
+    solarolo:   [45.544,  10.563],
+    plose:      [46.684,  11.707],
+    funes:      [46.600,  11.716],
+    ranui:      [46.649,  11.756],
+    vahrn:      [46.731,  11.643],
+    ortisei:    [46.573,  11.672],
+    pSella:     [46.506,  11.757],
+    frAugust:   [46.476,  11.765],
+    toniDemetz: [46.510,  11.806],
+    sr48:       [46.552,  12.192],
+    pTreCroci:  [46.567,  12.233],
+    sorapis:    [46.528,  12.178],
+    calalzo:    [46.444,  12.387],
+    treCime:    [46.619,  12.300],
+    cadini:     [46.608,  12.285],
+    locatelli:  [46.641,  12.305],
+    laFornace:  [45.921,   9.288],
+    mandello:   [45.924,   9.311],
+    lecco:      [45.831,   9.408]
+  };
+
+  function tiles() {
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      maxZoom: 18
+    });
+  }
+
+  function numIcon(n, bg) {
+    return L.divIcon({
+      className: '',
+      html: '<div style="background:' + bg + ';color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:2px solid rgba(255,255,255,0.9);box-shadow:0 1px 4px rgba(0,0,0,0.45);">' + n + '</div>',
+      iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -15]
+    });
+  }
+
+  function dotIcon(bg) {
+    return L.divIcon({
+      className: '',
+      html: '<div style="background:' + bg + ';width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,0.9);box-shadow:0 1px 3px rgba(0,0,0,0.35);"></div>',
+      iconSize: [10, 10], iconAnchor: [5, 5], popupAnchor: [0, -8]
+    });
+  }
+
+  function mkMap(id, opts) {
+    var m = L.map(id, Object.assign({zoomControl: false, scrollWheelZoom: false, attributionControl: false}, opts || {}));
+    tiles().addTo(m);
+    return m;
+  }
+
+  function line(m, pts, color, dash) {
+    L.polyline(pts, {color: color, weight: 2.5, dashArray: dash || '6,4', opacity: 0.75}).addTo(m);
+  }
+
+  // --- DIA 1: Milão → Verona → Solarolo ---
+  var m1 = mkMap('map-day1');
+  line(m1, [C.milano, C.verona, C.solarolo], '#2980b9');
+  L.marker(C.milano,   {icon: numIcon(1, '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento da carrinha · ~11h').addTo(m1);
+  L.marker(C.verona,   {icon: numIcon(2, '#2980b9')}).bindPopup('<b>② Verona</b><br>Festival na Arena di Verona').addTo(m1);
+  L.marker(C.solarolo, {icon: numIcon(3, '#2980b9')}).bindPopup('<b>③ Solarolo</b><br>Parque junto ao Lago di Garda · gratuito').addTo(m1);
+  m1.fitBounds([C.milano, C.verona, C.solarolo], {padding: [28, 28]});
+
+  // --- DIA 2: Solarolo → Plose ---
+  var m2 = mkMap('map-day2');
+  line(m2, [C.solarolo, C.plose], '#2980b9');
+  L.marker(C.solarolo, {icon: numIcon(3, '#2980b9')}).bindPopup('<b>③ Solarolo</b><br>Banho matinal no Lago di Garda').addTo(m2);
+  L.marker(C.plose,    {icon: numIcon(4, '#c0392b')}).bindPopup('<b>④ Plose</b><br>Parque de montanha · ~1960m · Bressanone').addTo(m2);
+  m2.fitBounds([C.solarolo, C.plose], {padding: [28, 28]});
+
+  // --- DIA 3: Plose → Val di Funes → Ranui → Vahrn → Ortisei ---
+  var m3 = mkMap('map-day3');
+  line(m3, [C.plose, C.funes, C.ranui, C.vahrn, C.ortisei], '#c0392b');
+  L.marker(C.plose,   {icon: numIcon(4, '#c0392b')}).bindPopup('<b>④ Plose</b><br>Partida manhã').addTo(m3);
+  L.marker(C.funes,   {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Adolf Munkel Trail</b><br>Val di Funes · sentido inverso').addTo(m3);
+  L.marker(C.ranui,   {icon: dotIcon('#2980b9')}).bindPopup('<b>Igreja St John in Ranui</b><br>Ícone fotográfico do Val di Funes').addTo(m3);
+  L.marker(C.vahrn,   {icon: dotIcon('#1abc9c')}).bindPopup('<b>Área de Serviços Vahrn</b><br>Scarico + água · ~€4 portagem A22').addTo(m3);
+  L.marker(C.ortisei, {icon: numIcon(5, '#c0392b')}).bindPopup('<b>⑤ Ortisei — SETIL</b><br>Jantar Tubladel · parque central').addTo(m3);
+  m3.fitBounds([C.plose, C.funes, C.ortisei], {padding: [22, 22]});
+
+  // --- DIA 4: Ortisei → Passo Sella → Utia Toni Demetz → SR48 ---
+  var m4 = mkMap('map-day4');
+  line(m4, [C.ortisei, C.pSella, C.toniDemetz, C.sr48], '#c0392b');
+  L.marker(C.ortisei,    {icon: numIcon(5, '#c0392b')}).bindPopup('<b>⑤ Ortisei</b><br>Partida manhã cedo').addTo(m4);
+  L.marker(C.frAugust,   {icon: dotIcon('#e67e22')}).bindPopup('<b>🥐 Rifugio Friedrich August</b><br>Bomboloni à crema · antes das 10h30').addTo(m4);
+  L.marker(C.pSella,     {icon: dotIcon('#6c3483')}).bindPopup('<b>Passo Sella</b><br>Coffin Gondola — Forcella Sassolungo').addTo(m4);
+  L.marker(C.toniDemetz, {icon: dotIcon('#c0392b')}).bindPopup('<b>🥾 Utia Toni Demetz</b><br>Não planeado · sentido inverso · o mais desafiante').addTo(m4);
+  L.marker(C.sr48,       {icon: numIcon(6, '#c0392b')}).bindPopup('<b>⑥ Parque SR48</b><br>Passagem por Cortina · descanso · gratuito').addTo(m4);
+  m4.fitBounds([C.ortisei, C.pSella, C.toniDemetz, C.sr48], {padding: [28, 28]});
+
+  // --- DIA 5: SR48 → Sorapis → Calalzo → Rifugio Auronzo ---
+  var m5 = mkMap('map-day5');
+  line(m5, [C.sr48, C.pTreCroci, C.sorapis, C.pTreCroci, C.calalzo, C.treCime], '#c0392b');
+  L.marker(C.sr48,      {icon: numIcon(6, '#c0392b')}).bindPopup('<b>⑥ SR48</b><br>Partida manhã').addTo(m5);
+  L.marker(C.pTreCroci, {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Passo Tre Croci</b><br>Início trilho Sorapis').addTo(m5);
+  L.marker(C.sorapis,   {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Lago di Sorapis</b><br>12.7 km · intensidade média').addTo(m5);
+  L.marker(C.calalzo,   {icon: dotIcon('#1abc9c')}).bindPopup('<b>Calalzo di Cadore</b><br>Scarico + água · gratuito em época baixa · vista incrível').addTo(m5);
+  L.marker(C.treCime,   {icon: numIcon('★', '#6c3483')}).bindPopup('<b>★ Rifugio Auronzo</b><br>Slot €60 · dormir ~4h na van').addTo(m5);
+  m5.fitBounds([C.sr48, C.pTreCroci, C.sorapis, C.calalzo, C.treCime], {padding: [22, 22]});
+
+  // --- DIA 6: Rifugio Auronzo → Cadini → Tre Cime → La Fornace ---
+  var m6 = mkMap('map-day6');
+  line(m6, [C.treCime, C.cadini, C.treCime, C.locatelli, C.treCime, C.calalzo, C.laFornace], '#6c3483');
+  L.marker(C.treCime,   {icon: numIcon('★', '#6c3483')}).bindPopup('<b>★ Rifugio Auronzo</b><br>Acordar ~4h · saída 11h30').addTo(m6);
+  L.marker(C.cadini,    {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Cadini di Misurina</b><br>Nascer do sol · 5h00 · já havia filas às 5h40').addTo(m6);
+  L.marker(C.locatelli, {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Rifugio Locatelli</b><br>Loop Tre Cime · ~9 km').addTo(m6);
+  L.marker(C.laFornace, {icon: numIcon(7, '#4a9070')}).bindPopup('<b>⑦ La Fornace</b><br>Oliveto Lario · Lago di Como · €35 (2 pax)').addTo(m6);
+  m6.fitBounds([C.treCime, C.cadini, C.locatelli, C.laFornace], {padding: [28, 28]});
+
+  // --- DIA 7: La Fornace → Mandello del Lario ---
+  var m7 = mkMap('map-day7');
+  line(m7, [C.laFornace, C.mandello], '#4a9070');
+  L.marker(C.laFornace, {icon: numIcon(7, '#4a9070')}).bindPopup('<b>⑦ La Fornace</b><br>Oliveto Lario').addTo(m7);
+  L.marker(C.mandello,  {icon: numIcon(8, '#2980b9')}).bindPopup('<b>⑧ Mandello del Lario</b><br>Junto à praia · gratuito · última noite').addTo(m7);
+  m7.fitBounds([C.laFornace, C.mandello], {padding: [50, 50]});
+
+  // --- MAPA GERAL ---
+  var mo = L.map('overview-map', {scrollWheelZoom: false});
+  tiles().addTo(mo);
+  var fullRoute = [C.milano, C.verona, C.solarolo, C.plose, C.funes, C.ortisei, C.pSella, C.toniDemetz, C.sr48, C.pTreCroci, C.sorapis, C.calalzo, C.treCime, C.laFornace, C.mandello, C.lecco, C.milano];
+  L.polyline(fullRoute, {color: '#1a2b3c', weight: 2, dashArray: '6,4', opacity: 0.55}).addTo(mo);
+
+  L.marker(C.funes,      {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Adolf Munkel</b><br>Val di Funes · D3').addTo(mo);
+  L.marker(C.ranui,      {icon: dotIcon('#2980b9')}).bindPopup('<b>Igreja St John in Ranui</b><br>D3').addTo(mo);
+  L.marker(C.vahrn,      {icon: dotIcon('#1abc9c')}).bindPopup('<b>Serviços Vahrn</b><br>Scarico D3').addTo(mo);
+  L.marker(C.ortisei,    {icon: dotIcon('#c0392b')}).bindPopup('<b>🍽️ Tubladel</b><br>Jantar D3 · Guia Michelin').addTo(mo);
+  L.marker(C.frAugust,   {icon: dotIcon('#e67e22')}).bindPopup('<b>🥐 Friedrich August</b><br>Bomboloni · D4').addTo(mo);
+  L.marker(C.toniDemetz, {icon: dotIcon('#c0392b')}).bindPopup('<b>🥾 Utia Toni Demetz</b><br>D4 · o mais desafiante').addTo(mo);
+  L.marker(C.sorapis,    {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Lago di Sorapis</b><br>D5').addTo(mo);
+  L.marker(C.calalzo,    {icon: dotIcon('#1abc9c')}).bindPopup('<b>Serviços Calalzo</b><br>Scarico D5').addTo(mo);
+  L.marker(C.cadini,     {icon: dotIcon('#27ae60')}).bindPopup('<b>🥾 Cadini di Misurina</b><br>Nascer do sol · D6').addTo(mo);
+  L.marker(C.lecco,      {icon: dotIcon('#1abc9c')}).bindPopup('<b>Serviços Lecco</b><br>Scarico D8').addTo(mo);
+
+  L.marker(C.milano,    {icon: numIcon(1,  '#1a2b3c')}).bindPopup('<b>① Milão</b><br>Levantamento D1 · Entrega D8').addTo(mo);
+  L.marker(C.verona,    {icon: numIcon(2,  '#2980b9')}).bindPopup('<b>② Verona</b><br>Festival na Arena · D1').addTo(mo);
+  L.marker(C.solarolo,  {icon: numIcon(3,  '#2980b9')}).bindPopup('<b>③ Solarolo</b><br>Lago di Garda · Noite 1').addTo(mo);
+  L.marker(C.plose,     {icon: numIcon(4,  '#c0392b')}).bindPopup('<b>④ Plose</b><br>Bressanone · 1960m · Noite 2').addTo(mo);
+  L.marker(C.ortisei,   {icon: numIcon(5,  '#c0392b')}).bindPopup('<b>⑤ SETIL Ortisei</b><br>Val Gardena · Noite 3').addTo(mo);
+  L.marker(C.sr48,      {icon: numIcon(6,  '#c0392b')}).bindPopup('<b>⑥ SR48</b><br>Cortina d\'Ampezzo · Noite 4').addTo(mo);
+  L.marker(C.treCime,   {icon: numIcon('★','#6c3483')}).bindPopup('<b>★ Rifugio Auronzo</b><br>Tre Cime · Noite 5').addTo(mo);
+  L.marker(C.laFornace, {icon: numIcon(7,  '#4a9070')}).bindPopup('<b>⑦ La Fornace</b><br>Oliveto Lario · Lago di Como · Noite 6').addTo(mo);
+  L.marker(C.mandello,  {icon: numIcon(8,  '#2980b9')}).bindPopup('<b>⑧ Mandello del Lario</b><br>Lago di Como · Noite 7').addTo(mo);
+  mo.fitBounds(fullRoute, {padding: [28, 28]});
+})();
+</script>
+
+</body>
+</html>
